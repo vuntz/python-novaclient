@@ -144,13 +144,17 @@ class ClientTestBase(testtools.TestCase):
         passwd = auth_info['password']
         tenant = auth_info['project_name']
         auth_url = auth_info['auth_url']
+        if 'insecure' in cloud_config.config:
+            insecure = cloud_config.config['insecure']
+        else:
+            insecure = False
 
         # TODO(sdague): we made a lot of fun of the glanceclient team
         # for version as int in first parameter. I guess we know where
         # they copied it from.
         self.client = novaclient.client.Client(
             2, user, passwd, tenant,
-            auth_url=auth_url)
+            auth_url=auth_url, insecure=insecure)
 
         # pick some reasonable flavor / image combo
         self.flavor = pick_flavor(self.client.flavors.list())
@@ -170,7 +174,8 @@ class ClientTestBase(testtools.TestCase):
             password=passwd,
             tenant_name=tenant,
             uri=auth_url,
-            cli_dir=cli_dir)
+            cli_dir=cli_dir,
+            insecure=insecure)
 
     def nova(self, action, flags='', params='', fail_ok=False,
              endpoint_type='publicURL', merge_stderr=False):
